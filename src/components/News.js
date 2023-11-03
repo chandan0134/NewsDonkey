@@ -1,15 +1,18 @@
 import React from "react";
 import NewsItem from "./NewsItem";
 import { useState,useEffect } from "react";
+import spinner from "./spinner";
 
 
 
-function News() {
+
+function News(props) {
 
   const [data, setData] = useState([]);
   const [page,setPage]=useState(1);
-  const [size,setSize]=useState(20)
-  const [total,setTotal]=useState(null);
+  const [load,setLoad]=useState(true);
+ 
+
 
 
 
@@ -17,13 +20,15 @@ function News() {
   useEffect(() => {
     async function newsdata() {
       try {
-        let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=84cd15309f79485f99c1d0b82686d4dc&page=${page}&pageSize=${size}`;
+        let url = `https://newsapi.org/v2/top-headlines?country=in&category=${props.cat}&apiKey=84cd15309f79485f99c1d0b82686d4dc&page=${page}&pageSize=${props.size}`;
+        setLoad(true);
         let response = await fetch(url);
         let parsedData = await response.json();
-        console.log("result",parsedData)
-        setTotal(parsedData.totalResults)
+        console.log(parsedData)
+      
         setData(parsedData.articles); // Update the data state with the fetched articles
-        console.log(total,data);
+        setLoad(false); 
+        
       } catch (error) {
         console.error("Error fetching data: ", error);
       }
@@ -32,46 +37,41 @@ function News() {
     newsdata();
   }, []);
 
-
-  async function handleNextClick(){
-    // if(page+1>Math.ceil(totalResult/20)){
-
-    // }
-    
+  async function handleNextClick() {
     console.log("Next");
-    let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=84cd15309f79485f99c1d0b82686d4dc&page=${page+1}`;
+    let url = `https://newsapi.org/v2/top-headlines?country=in&category=${props.category}apiKey=84cd15309f79485f99c1d0b82686d4dc&page=${page + 1}&pageSize=${props.size}`;
     let response = await fetch(url);
     let parsedData = await response.json();
-    setData(parsedData);
-    setPage(page+1);
-    setSize()
-    
+    setData(parsedData.articles); // Update the data state with the fetched articles
+    setPage(page + 1);
   }
-
-  async function handlePrevClick(){
+  
+  async function handlePrevClick() {
     console.log("Prev");
-    if(page>1){
-    let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=84cd15309f79485f99c1d0b82686d4dc&page=${page-1}`;
-    let response = await fetch(url);
-    let parsedData = await response.json();
-    setData(parsedData);
-    setPage(page-1);
+    if (page > 1) {
+      let url = `https://newsapi.org/v2/top-headlines?country=in&category=${props.category}&apiKey=84cd15309f79485f99c1d0b82686d4dc&page=${page - 1}&pageSize=${props.size}`;
+      let response = await fetch(url);
+      let parsedData = await response.json();
+      setData(parsedData.articles); // Update the data state with the fetched articles
+      setPage(page - 1);
     }
-    
   }
   
 
   return (
-    <div className="container my-3">
+    <div className="container  text-center my-3">
       <h3>NewsDonkey</h3>
-      <h1>--------------------------------TOP HEADLINES------------------------------</h1>
+     
+      <h1>---------TOP HEADLINES---------</h1>
+
+      {load &&<spinner/>}
       <div className="row">
         {data.map((element) => (
-          <div className="col-md-3">
+          <div className="col-md-3 my-6">
             <NewsItem
               key={element.url}
-              title={element.title ? element.title.slice(0,45) : " "}
-              description={element.description ? element.description.slice(0,80) : " "}
+              title={element.title ? element.title.slice(0,50) : " "}
+              description={element.description ? element.description.slice(0,130) : " "}
               imageURL={element.urlToImage ? element.urlToImage :'https://guwahatiplus.com/public/web/images/default-news.png' }
               newsURL={element.url}
               

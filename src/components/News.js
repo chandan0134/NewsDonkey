@@ -31,7 +31,7 @@ function News(props) {
   
         let response = await fetch(url);
         let parsedData = await response.json();
-        console.log(parsedData);
+        //console.log(parsedData);
       
         setData(parsedData.articles); // Update the data state with the fetched articles
 
